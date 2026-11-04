@@ -1,14 +1,14 @@
 # PurePrep AI backend — production stack.
 #
 # Deployed alongside Coldstart on the same Hetzner host. It reuses Coldstart's
-# Caddy (the `coldstart_default` network) for automatic HTTPS, so this stack only
+# Caddy (the `lechdigital_edge` network) for automatic HTTPS, so this stack only
 # needs to run the app container; TLS + routing are handled by that shared Caddy.
 #
 # This one container now serves two hostnames, both reverse-proxied to it by Caddy:
 #   • api.pureprep.lechdigital.nl  → the JSON API (parse, credits, billing, promo, waitlist)
 #   • pureprep.lechdigital.nl      → the marketing landing page + /privacy (static wwwroot),
 #                                     plus POST /api/waitlist (same-origin, so no CORS needed)
-# Add the second hostname to Coldstart's Caddyfile as another reverse_proxy block
+# Add the second hostname to the edge Caddy (Lech-Digital/lechdigital-infra)file as another reverse_proxy block
 # pointing at pureprep:8080 (same upstream as the api block).
 #
 # Deploy (run from /opt/pureprep on the server):
@@ -23,7 +23,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    image: pureprep-web
+    # Tagged with the commit by the deploy workflow (lechdigital-infra); a build on the server makes :latest.
+    image: pureprep-web:${IMAGE_TAG:-latest}
     container_name: pureprep-web
     restart: unless-stopped
     environment:
@@ -50,17 +51,17 @@ services:
       # Google Play service-account key, read-only. Kept out of the image and out of env vars.
       - ${PLAY_KEY_PATH:?set PLAY_KEY_PATH in .env}:/run/secrets/play-service-account.json:ro
     networks:
-      - coldstart_default
+      - lechdigital_edge
     expose:
       - "8080"
 
-# Coldstart's Caddy lives on this network; joining it lets Caddy reach us by name.
+# the edge Caddy (Lech-Digital/lechdigital-infra) lives on this network; joining it lets Caddy reach us by name.
 # NOTE: Compose registers the SERVICE NAME as a DNS alias on this shared network,
 # so the service must not be called something Coldstart's stack already uses
 # ("web", "db", "caddy", "umami"). A generic name here silently hijacks their
 # traffic — see the service comment below.
 networks:
-  coldstart_default:
+  lechdigital_edge:
     external: true
 
 volumes:

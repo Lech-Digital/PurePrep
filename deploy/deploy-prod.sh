@@ -3,7 +3,7 @@
 # deploy-prod.sh — ship the PurePrep backend to the Hetzner host.
 #
 # The server has a copy of the source (not a git checkout), so this syncs the files the image is
-# built from, then rebuilds the container in place. Coldstart's Caddy handles TLS and routing.
+# built from, then rebuilds the container in place. the edge Caddy (Lech-Digital/lechdigital-infra) handles TLS and routing.
 #
 # It REFUSES to deploy while Google Play validation is denied. Deploying then would close purchase
 # forgery but also reject genuine purchases — customers charged, no credits granted.
@@ -13,7 +13,7 @@
 #
 set -euo pipefail
 
-HOST="${PUREPREP_HOST:-coldstart-prod}"
+HOST="${PUREPREP_HOST:-lechdigital-prod}"
 PUBLIC_URL="${PUREPREP_PUBLIC_URL:-https://api.pureprep.lechdigital.nl}"
 REMOTE_DIR="${PUREPREP_REMOTE_DIR:-/opt/pureprep}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
