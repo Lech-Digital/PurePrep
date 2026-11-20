@@ -82,7 +82,8 @@ alias, `10.0.2.2`, if you'd rather skip `adb reverse` there — use it locally, 
 
 Signing activates only for Release Android builds when `PUREPREP_KEYSTORE_PASS` is set.
 The keystore lives outside the repo (`~/keystores/pureprep-upload.jks`, alias
-`pureprep`); no secrets are committed.
+`pureprep`); no secrets are committed. On the Linux dev box `~/keystores` links to `~/dev/secrets/keystores` (mode 700).
+`deploy/.env` (ADMIN_SECRET for `deploy/promo.sh`) is a git-ignored symlink to `~/dev/secrets/env/pureprep.env` there.
 
 ```sh
 export PUREPREP_KEYSTORE_PASS=$(cat ~/keystores/pureprep-upload.pass.txt)
